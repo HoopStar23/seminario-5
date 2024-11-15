@@ -1,17 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:prefeusuarios/screens/settings_screen.dart';
 import 'package:prefeusuarios/shared_prefs/user_preferences.dart';
 import 'package:prefeusuarios/widget/drawer_menu.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   static const String routeName = 'home';
-  final prefs = new UserPreferences();
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final prefs = UserPreferences();
+
+  bool _colorSecundario = false;
+  String _genero = '1';
+  String _nombre = '';
 
   @override
   void initState() {
-    prefs.lastPage = HomeScreen.routeName;
-    print(prefs.lastPage);
+    super.initState();
+    _loadPreferences();
+  }
 
+  Future<void> _loadPreferences() async {
+    _colorSecundario = (await prefs.getColorSecundario()) == 'true';
+    _genero = await prefs.getGenero() ?? '1';
+    _nombre = await prefs.getNombre() ?? '';
+
+    await prefs.setLastPage(HomeScreen.routeName);
+
+    print(prefs.getLastPage());
+    setState(() {});
   }
 
   @override
@@ -19,15 +38,16 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Preferencias de usuario'),
-        backgroundColor: (prefs.colorSecundario) ? Colors.teal : Colors.blue,
+        backgroundColor: _colorSecundario ? Colors.teal : Colors.blue,
       ),
       body: Column(
         children: [
-          Text("Color secundario: ${prefs.colorSecundario}"),
+          Text(
+              "Color secundario: ${_colorSecundario ? 'Activado' : 'Desactivado'}"),
           Divider(),
-          Text('Género: ${prefs.genero}'),
+          Text('Género: ${_genero == '1' ? 'Masculino' : 'Femenino'}'),
           Divider(),
-          Text("Nombre usuario: ${prefs.nombre}"),
+          Text("Nombre usuario: $_nombre"),
         ],
         mainAxisAlignment: MainAxisAlignment.center,
       ),

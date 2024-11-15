@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prefeusuarios/shared_prefs/user_preferences.dart';
 import 'package:prefeusuarios/widget/drawer_menu.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
   static const String routeName = 'settings';
@@ -21,12 +20,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
-    _genero = prefs.genero;
-    _colorSecundario = prefs.colorSecundario;
-    _nombre = prefs.nombre;
-    prefs.lastPage = SettingsScreen.routeName;
-    _textController = new TextEditingController(text: _nombre);
-    print(prefs.lastPage);
+    _loadPreferences();
+  }
+
+  @override
+  void dispose() {
+    _textController?.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadPreferences() async {
+    _genero = int.tryParse(await prefs.getGenero() ?? '1') ?? 1;
+    _colorSecundario = (await prefs.getColorSecundario()) == 'true';
+    _nombre = await prefs.getNombre() ?? '';
+
+    await prefs.setLastPage(SettingsScreen.routeName);
+
+    print(prefs.getLastPage());
+
+    _textController = TextEditingController(text: _nombre);
+
+    setState(() {});
   }
 
   @override
@@ -34,7 +48,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
         appBar: AppBar(
           title: Text('Ajustes'),
-          backgroundColor: (prefs.colorSecundario) ? Colors.teal : Colors.blue,
+          backgroundColor: _colorSecundario ? Colors.teal : Colors.blue,
         ),
         drawer: DrawerMenu(),
         body: ListView(
@@ -49,31 +63,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
             SwitchListTile(
                 value: _colorSecundario,
                 title: Text('Color secundario'),
-                onChanged: (value) {
+                onChanged: (value) async {
                   setState(() {
                     _colorSecundario = value;
-                  prefs.colorSecundario = value;
-                  });                  
+                  });
+                  await prefs.setColorSecundario(value.toString());
                 }),
             RadioListTile(
                 value: 1,
                 title: Text('Masculino'),
                 groupValue: _genero,
-                onChanged: (value) {
+                onChanged: (value) async {
                   setState(() {
                     _genero = value!;
-                  prefs.genero = value!;
-                  });                  
+                  });
+                  await prefs.setGenero(value.toString());
                 }),
             RadioListTile(
                 value: 2,
                 title: Text('Femenino'),
                 groupValue: _genero,
-                onChanged: (value) {
+                onChanged: (value) async {
                   setState(() {
                     _genero = value!;
-                  prefs.genero = value!;
-                  });                  
+                  });
+                  await prefs.setGenero(value.toString());
                 }),
             Divider(),
             Container(
@@ -83,11 +97,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 decoration: InputDecoration(
                     labelText: 'Nombre',
                     helperText: 'Nombre de la persona usando el telefono'),
-                onChanged: (value) {
+                onChanged: (value) async {
                   setState(() {
                     _nombre = value;
-                  prefs.nombre = value;
                   });
+                  await prefs.setNombre(value);
                 },
               ),
             )

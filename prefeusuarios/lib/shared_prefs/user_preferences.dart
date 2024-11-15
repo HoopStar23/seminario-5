@@ -1,51 +1,44 @@
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class UserPreferences {
-  static final UserPreferences _instance = new UserPreferences._internal(); 
+  static final UserPreferences _instance = UserPreferences._internal();
+  final FlutterSecureStorage storage = FlutterSecureStorage();
 
-  factory UserPreferences(){
+  factory UserPreferences() {
     return _instance;
   }
 
   UserPreferences._internal();
 
-  late SharedPreferences _prefs;
-
-  initPrefs()async{
-    this._prefs = await SharedPreferences.getInstance();
+  Future<void> setNombre(String value) async {
+    await storage.write(key: 'nombre', value: value);
   }
 
-  String get lastPage{
-    return _prefs.getString('lastPage') ?? '';
+  Future<String?> getNombre() async {
+    return await storage.read(key: 'nombre');
   }
 
-  set lastPage(String value){
-    _prefs.setString('lastPage', value);
+  Future<void> setColorSecundario(String value) async {
+    await storage.write(key: 'colorSecundario', value: value);
   }
 
-  int get genero{
-    return _prefs.getInt('genero') ?? 1;
+  Future<String?> getColorSecundario() async {
+    return await storage.read(key: 'colorSecundario');
   }
 
-  set genero(int value){
-    _prefs.setInt('genero', value);
+  Future<void> setGenero(String value) async {
+    await storage.write(key: 'genero', value: value);
   }
 
-  bool get colorSecundario { 
-    // Si no existe el colorSecundario, devolverá un false 
-    return _prefs.getBool('colorSecundario') ?? false; 
-  } 
- 
-  set colorSecundario(bool value) { 
-    _prefs.setBool('colorSecundario', value); 
-  } 
- 
-  String get nombre { 
-    // Si no existe el nombreUsuario, devolverá una cadena vacía 
-    return _prefs.getString('nombre') ?? ''; 
-  } 
- 
-  set nombre(String value) { 
-    _prefs.setString('nombre', value); 
-  } 
+  Future<String?> getGenero() async {
+    return await storage.read(key: 'genero');
+  }
+
+  Future<void> setLastPage(String value) async {
+    await storage.write(key: 'lastPage', value: value);
+  }
+
+  Future<String?> getLastPage() async {
+    return await storage.read(key: 'lastPage');
+  }
 }

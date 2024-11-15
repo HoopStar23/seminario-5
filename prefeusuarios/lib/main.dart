@@ -1,27 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:prefeusuarios/routes.dart';
 import 'package:prefeusuarios/screens/home_screen.dart';
 import 'package:prefeusuarios/screens/settings_screen.dart';
 import 'package:prefeusuarios/shared_prefs/user_preferences.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final prefs = new UserPreferences();
-  await prefs.initPrefs();
-  runApp(const MyApp());
-} 
+  final prefs = UserPreferences();
+  String? lastPage = await prefs.getLastPage();
+  runApp(MyApp(lastPage: lastPage ?? HomeScreen.routeName));
+}
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final String lastPage;
+  const MyApp({super.key, required this.lastPage});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Preferencias',
-      initialRoute: HomeScreen.routeName,
-      routes: {HomeScreen.routeName: (BuildContext context) => HomeScreen(),
-       SettingsScreen.routeName: (BuildContext context) => SettingsScreen()},
+      initialRoute: lastPage,
+      routes: {
+        HomeScreen.routeName: (BuildContext context) => HomeScreen(),
+        SettingsScreen.routeName: (BuildContext context) => SettingsScreen()
+      },
     );
   }
 }
